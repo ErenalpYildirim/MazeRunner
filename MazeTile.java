@@ -4,7 +4,7 @@ public class MazeTile {
     private char type;
     private boolean hasAgent;
 
-    //3131313131
+    //3131313131123
 
     private boolean isTraversable(){
         return false;
