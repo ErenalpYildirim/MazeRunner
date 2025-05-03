@@ -1,61 +1,74 @@
 public class CircularLinkedListv2 {
+    private  class Node {
+        Object data;
+        Node next;
+
+
+        Node(Object data) {
+        this.data = data;
+        this.next = null;
+        }
+    
+    }
     private Node tail;
+    private int size;
+    
     
     public CircularLinkedListv2() {
-    tail = null;
-    }
-    public void add(int value) {
-    Node newNode = new Node(value);
-    if (tail == null) {
-    tail = newNode;
-    tail.setNext(tail);
-    } else {
-    newNode.setNext(tail.getNext());
-    tail.setNext(newNode);
-    tail = newNode;
-    }
-    }
-    public void remove(int value) {
-    if (tail != null) {
-    Node prev = tail;
-    Node curr = tail.getNext();
-    while (curr != tail && curr.getValue() != value) {
-    prev = curr;
-    curr = curr.getNext();
-    }
-    if (curr != tail) {
-    4
-    CENG 202 – Data Structures
-    if (curr == tail.getNext()) {
-    tail.setNext(curr.getNext());
-    }
-    if (curr == tail) {
-    tail = prev;
-    }
-    prev.setNext(curr.getNext());
+        tail = null;
+        size = 0;
+        }
+   
+   
+    public void add(Object value) {
+        Node newNode = new Node(value);
+            if (tail == null) {
+                tail = newNode;
+                tail.next= tail;
+    } 
+    else {
+        newNode.next= tail.next;
+        tail.next= newNode;  
+        tail = newNode;
     }
     }
+
+    public Node search(Object value) {
+        if (tail != null) {
+        Node curr = tail.next;
+        while (curr != tail && curr.data != value) {
+            curr = curr.next;
     }
-    public Node search(int value) {
-    if (tail != null) {
-    Node curr = tail.getNext();
-    while (curr != tail && curr.getValue() != value) {
-    curr = curr.getNext();
+        if (curr.data == value) {
+        return curr;
+        }
     }
-    if (curr.getValue() == value) {
-    return curr;
-    }
-    }
-    return null;
-    }
+        return null;
+}
     public void rotateClockwise() {
-    if (tail != null) {
-    tail = tail.getNext();
+      if (tail == null) {
+        
+            return;
+        }
+        Node current =  tail.next;
+
+        while (current.next != tail) {
+            current = current.next;
+        }
+        tail = current;
     }
+    public void display() {
+        if (tail == null) {
+            System.out.println("List is empty.");
+            return;
+        }
+        Node current = tail.next;
+        do {
+            System.out.print(current.data + " ");
+            current = current.next;
+        } while (current != tail.next);
+        System.out.println();
     }
-    public void rotateCounterclockwise() {
-    if (tail != null) {
-    tail = tail.getPrev();
-    }
-    }
-    }
+    
+   
+}
