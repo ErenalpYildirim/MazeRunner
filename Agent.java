@@ -113,6 +113,7 @@ public class Agent {
      */
     public boolean applyPowerUp() {
         if (hasPowerUp) {
+            
             hasPowerUp = false;
             return true;
         }

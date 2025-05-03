@@ -103,13 +103,7 @@ public class GameController {
             return "used a power-up";
         }
         
-        // 20% chance to backtrack if possible
-        if (random.nextDouble() < 0.2 && agent.getBacktracks() < agent.getTotalMoves() / 2) {
-            if (agent.backtrack()) {
-                maze.updateAgentLocation(agent, -1, -1); // Force update
-                return "backtracked to (" + agent.getCurrentX() + "," + agent.getCurrentY() + ")";
-            }
-        }
+        
         
         // Try to move in a random direction
         String[] shuffledDirections = shuffleDirections();
@@ -156,6 +150,7 @@ public class GameController {
                 System.out.println("Agent " + agent.getId() + " triggered a trap!");
                 agent.backtrackMultiple(2);
                 maze.updateAgentLocation(agent, -1, -1); // Force update
+                tile.setType('E'); // Remove the trap
                 return "triggered a trap! Backtracked 2 steps to (" + 
                        agent.getCurrentX() + "," + agent.getCurrentY() + ")";
                 
