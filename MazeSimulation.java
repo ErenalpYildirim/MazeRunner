@@ -32,8 +32,8 @@ public class MazeSimulation {
         int numAgents = getIntInput(scanner, 1, 10);
         
         // Probabilities
-        System.out.print("Wall density (0.0-0.3): ");
-        double wallDensity = getDoubleInput(scanner, 0.0, 0.3);
+        System.out.print("Wall density (0.0-0.5): ");
+        double wallDensity = getDoubleInput(scanner, 0.0, 0.5);
         
         System.out.print("Trap density (0.0-0.2): ");
         double trapDensity = getDoubleInput(scanner, 0.0, 0.2);
