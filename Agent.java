@@ -1,14 +1,15 @@
-import java.util.Stack;
 
 public class Agent {
     private int id;
-    private int currentX, currentY;
+    private int currentX;
+    private int currentY;
     private Stack<String> moveHistory;
     private boolean hasReachedGoal;
     private int totalMoves;
     private int backtracks;
     private boolean hasPowerUp;
-
+    private int trapsTriggered;
+    
     public Agent(int id, int startX, int startY) {
         this.id = id;
         this.currentX = startX;
@@ -18,109 +19,149 @@ public class Agent {
         this.totalMoves = 0;
         this.backtracks = 0;
         this.hasPowerUp = false;
+        this.trapsTriggered = 0;
+        
+        recordMove(startX, startY);
     }
-
-    // Ajanın kimliğini döndüren getter metodu
-    public int getId() {
-        return this.id;
-    }
-
-    // Ajanın hedefe ulaşıp ulaşmadığını ayarlamak için setter metodu
-    public void setHasReachedGoal(boolean hasReachedGoal) {
-        this.hasReachedGoal = hasReachedGoal;
-    }
-
-    // Ajanın hedefe ulaşıp ulaşmadığını kontrol etmek için getter metodu
-    public boolean hasReachedGoal() {
-        return this.hasReachedGoal;
-    }
-
-    // Hareket fonksiyonu (yönü "UP", "DOWN", "LEFT", "RIGHT" olarak alır)
-    public void move(String direction, MazeManager mazeManager) {
+    
+    
+    public void move(String direction) {
         int newX = currentX;
         int newY = currentY;
-    
+        
         switch (direction) {
             case "UP":
-                newX--;
-                break;
-            case "DOWN":
-                newX++;
-                break;
-            case "LEFT":
                 newY--;
                 break;
-            case "RIGHT":
+            case "DOWN":
                 newY++;
                 break;
+            case "LEFT":
+                newX--;
+                break;
+            case "RIGHT":
+                newX++;
+                break;
             default:
-                System.out.println("Invalid direction!");
-                return;
+                throw new IllegalArgumentException("Invalid direction: " + direction);
         }
-    
-        // Check bounds (valid grid indices)
-        if (newX >= 0 && newX < mazeManager.getRows() && newY >= 0 && newY < mazeManager.getCols()) {
-            currentX = newX;
-            currentY = newY;
-            recordMove(currentX, currentY);
-            System.out.println("Agent " + id + " moved to (" + currentX + ", " + currentY + ")");
-        } else {
-            System.out.println("Agent " + id + " cannot move outside the maze boundaries.");
-        }
-    }
-    public void setCurrentX(int x) {
-        this.currentX = x;
+        
+        currentX = newX;
+        currentY = newY;
+        recordMove(newX, newY);
+        totalMoves++;
     }
     
-    public void setCurrentY(int y) {
-        this.currentY = y;
+    
+    public boolean backtrack() {
+        if (moveHistory.size() <= 1) {
+            return false;
+        }
+        
+        moveHistory.pop();
+        
+        String previousPos = moveHistory.peek();
+        String[] coords = previousPos.split(",");
+        
+        currentX = Integer.parseInt(coords[0]);
+        currentY = Integer.parseInt(coords[1]);
+        
+        backtracks++;
+        return true;
     }
     
-
-    // Geri adım atma fonksiyonu
-    public void backtrack() {
-        if (!moveHistory.isEmpty()) {
-            String lastMove = moveHistory.pop();
-            String[] coords = lastMove.split(",");
-            this.currentX = Integer.parseInt(coords[0]);
-            this.currentY = Integer.parseInt(coords[1]);
-            this.backtracks++;
+ 
+    public boolean backtrackMultiple(int steps) {
+        boolean success = true;
+        for (int i = 0; i < steps; i++) {
+            if (!backtrack()) {
+                success = false;
+                break;
+            }
         }
+        trapsTriggered++;
+        return success;
     }
-
-    // PowerUp kullanımı (boş bir fonksiyon örneği)
-    public void applyPowerUp() {
-        this.hasPowerUp = true;
+    
+    public boolean applyPowerUp() {
+        if (hasPowerUp) {
+            
+            hasPowerUp = false;
+            return true;
+        }
+        return false;
     }
-
-    // Ajanın hareketini kaydeder
+  
     public void recordMove(int x, int y) {
         moveHistory.push(x + "," + y);
     }
-
-    // Ajanın hareket geçmişini string olarak döndürür
+    
     public String getMoveHistoryAsString() {
-        return String.join(" -> ", moveHistory);
+        return moveHistory.toString(5); // Show last 5 moves
     }
+    
+   
+    public int getId() {
+        return id;
+    }
+    
 
-    // Getters
     public int getCurrentX() {
         return currentX;
     }
-
+    
+    
     public int getCurrentY() {
         return currentY;
     }
+    
+    
 
+
+
+    public boolean hasReachedGoal() {
+        return hasReachedGoal;
+    }
+    
+   
+    public void setHasReachedGoal(boolean hasReachedGoal) {
+        this.hasReachedGoal = hasReachedGoal;
+    }
+    
+    
     public int getTotalMoves() {
         return totalMoves;
     }
-
+    
+   
     public int getBacktracks() {
         return backtracks;
     }
 
+
+
     public boolean hasPowerUp() {
         return hasPowerUp;
+    }
+    
+    
+    public void setHasPowerUp(boolean hasPowerUp) {
+        this.hasPowerUp = hasPowerUp;
+    }
+    
+    
+    public int getTrapsTriggered() {
+        return trapsTriggered;
+    }
+    
+    
+    public int getMaxStackDepth() {
+        return moveHistory.size();
+    }
+    
+    
+    @Override
+    public String toString() {
+        return "Agent " + id + " at (" + currentX + "," + currentY + ")";
     }
 }
