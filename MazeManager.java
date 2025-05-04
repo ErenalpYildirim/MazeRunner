@@ -164,12 +164,12 @@ public class MazeManager {
         }
         
         CircularLinkedList<MazeTile> row = rotatingRows.get(rowIndex);
-        row.rotate();  // Rotate the circular linked list
+        row.rotateClockwise();  // Rotate the circular linked list
         
         // Update the grid with rotated tiles
         int actualRowIndex = -1;
         for (int y = 0; y < height; y++) {
-            if (grid[y][0] == row.get(0)) {
+            if (grid[y][0] == row.getData(0)) {
                 actualRowIndex = y;
                 break;
             }
@@ -192,7 +192,7 @@ public class MazeManager {
         }
         
         CircularLinkedList<MazeTile> col = rotatingColumns.get(colIndex);
-        col.rotate();  // Rotate the circular linked list
+        col.rotateClockwise();  // Rotate the circular linked list
         
         // Update the grid with rotated tiles
         int actualColIndex = -1;
