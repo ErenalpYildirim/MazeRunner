@@ -32,8 +32,8 @@ public class MazeSimulation {
         int numAgents = getIntInput(scanner, 1, 10);
         
         // Probabilities
-        System.out.print("Wall density (0.0-0.3): ");
-        double wallDensity = getDoubleInput(scanner, 0.0, 0.3);
+        System.out.print("Wall density (0.0-0.5): ");
+        double wallDensity = getDoubleInput(scanner, 0.0, 0.5);
         
         System.out.print("Trap density (0.0-0.2): ");
         double trapDensity = getDoubleInput(scanner, 0.0, 0.2);
@@ -41,12 +41,6 @@ public class MazeSimulation {
         System.out.print("Power-up density (0.0-0.1): ");
         double powerUpDensity = getDoubleInput(scanner, 0.0, 0.1);
         
-        // Rotating corridors
-        System.out.print("Number of rotating rows (0-" + (mazeHeight/2) + "): ");
-        int numRotatingRows = getIntInput(scanner, 0, mazeHeight/2);
-        
-        System.out.print("Number of rotating columns (0-" + (mazeWidth/2) + "): ");
-        int numRotatingCols = getIntInput(scanner, 0, mazeWidth/2);
         
         // Max turns
         System.out.print("Maximum number of turns (50-500): ");
@@ -62,8 +56,8 @@ public class MazeSimulation {
         // Initialize and run the simulation
         GameController controller = new GameController(maxTurns);
         controller.initializeGame(mazeWidth, mazeHeight, numAgents, 
-                                  wallDensity, trapDensity, powerUpDensity,
-                                  numRotatingRows, numRotatingCols);
+                                  wallDensity, trapDensity, powerUpDensity
+                                  );
         
         // Run the simulation
         controller.runSimulation();

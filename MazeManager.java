@@ -41,17 +41,16 @@ public class MazeManager {
      * @param wallDensity Probability of a tile being a wall (0.0 to 1.0)
      * @param trapDensity Probability of a tile being a trap (0.0 to 1.0)
      * @param powerUpDensity Probability of a tile being a power-up (0.0 to 1.0)
-     * @param numRotatingRows Number of rows that can rotate
-     * @param numRotatingCols Number of columns that can rotate
+     * 
      */
-    public void generateMaze(double wallDensity, double trapDensity, double powerUpDensity, 
-                             int numRotatingRows, int numRotatingCols) {
+    public void generateMaze(double wallDensity, double trapDensity, double powerUpDensity
+                             ) {
         // Place walls, traps, and power-ups randomly
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 double roll = random.nextDouble();
                 
-                // Skip the corners (starting and potential goal positions)
+                // Skip the corners (starting and goal positions)
                 if ((x == 0 && y == 0) || (x == width-1 && y == height-1)) {
                     continue;
                 }
@@ -70,12 +69,12 @@ public class MazeManager {
         grid[height-1][width-1].setType('G');
         
         // Set up rotating rows
-        setupRotatingRows(numRotatingRows);
+        setupRotatingRows();
         
         // Set up rotating columns
-        setupRotatingColumns(numRotatingCols);
+        setupRotatingColumns();
         
-        // Ensure the maze is solvable by creating a path from start to goal
+        // Ensure the maze is solvable
         ensureSolvable();
     }
     
@@ -83,75 +82,62 @@ public class MazeManager {
      * Sets up rotating rows for the maze
      * @param numRows Number of rows that can rotate
      */
-    private void setupRotatingRows(int numRows) {
-        numRows = Math.min(numRows, height);
+    private void setupRotatingRows() {
+        int numRows = 1;
         
         // Clear existing rotating rows
         rotatingRows.clear();
         
-        // Select random rows to rotate
-        List<Integer> selectedRows = new ArrayList<>();
-        while (selectedRows.size() < numRows) {
-            int row = random.nextInt(height);
-            if (!selectedRows.contains(row)) {
-                selectedRows.add(row);
-                
-                // Create a circular linked list for this row
-                CircularLinkedList<MazeTile> rotatingRow = new CircularLinkedList<>();
-                for (int x = 0; x < width; x++) {
-                    rotatingRow.add(grid[row][x]);
-                }
-                rotatingRows.add(rotatingRow);
-            }
+        // Select random row to rotate
+        int row = random.nextInt(height);
+        CircularLinkedList<MazeTile> rotatingRow = new CircularLinkedList<>();
+        for (int x = 0; x < width; x++) {
+            rotatingRow.add(grid[row][x]);
         }
+        rotatingRows.add(rotatingRow);
     }
     
     /**
      * Sets up rotating columns for the maze
      * @param numCols Number of columns that can rotate
      */
-    private void setupRotatingColumns(int numCols) {
-        numCols = Math.min(numCols, width);
+    private void setupRotatingColumns() {
+        int numCols = 1;
         
         // Clear existing rotating columns
         rotatingColumns.clear();
         
-        // Select random columns to rotate
-        List<Integer> selectedCols = new ArrayList<>();
-        while (selectedCols.size() < numCols) {
-            int col = random.nextInt(width);
-            if (!selectedCols.contains(col)) {
-                selectedCols.add(col);
-                
-                // Create a circular linked list for this column
-                CircularLinkedList<MazeTile> rotatingCol = new CircularLinkedList<>();
-                for (int y = 0; y < height; y++) {
-                    rotatingCol.add(grid[y][col]);
-                }
-                rotatingColumns.add(rotatingCol);
-            }
+        // Select random column to rotate
+        int col = random.nextInt(width);
+        CircularLinkedList<MazeTile> rotatingCol = new CircularLinkedList<>();
+        for (int y = 0; y < height; y++) {
+            rotatingCol.add(grid[y][col]);
         }
+        rotatingColumns.add(rotatingCol);
     }
     
     /**
      * Ensures the maze is solvable by creating a path from start to goal
      */
     private void ensureSolvable() {
-        // Simple method: clear a path along the edges
+        // Start from the top-left corner
+        int x = 0, y = 0;
         
-        // Clear the top row
-        for (int x = 0; x < width; x++) {
-            if (grid[0][x].getType() == 'W') {
-                grid[0][x].setType('E');
+        // Create a simple path: right, down, right, down, etc.
+        while (x < width - 1 || y < height - 1) {
+            // Clear current position
+            grid[y][x].setType('E');
+            
+            // Alternate between moving right and down
+            if (x < width - 1 && (y == 0 || y % 2 == 0)) {
+                x++; // Move right
+            } else if (y < height - 1) {
+                y++; // Move down
             }
         }
         
-        // Clear the right column
-        for (int y = 0; y < height; y++) {
-            if (grid[y][width-1].getType() == 'W') {
-                grid[y][width-1].setType('E');
-            }
-        }
+        // Ensure the goal is clear
+        grid[height-1][width-1].setType('G');
     }
     
     /**
@@ -166,10 +152,10 @@ public class MazeManager {
         CircularLinkedList<MazeTile> row = rotatingRows.get(rowIndex);
         row.rotateClockwise();  // Rotate the circular linked list
         
-        // Update the grid with rotated tiles
+        // Find the actual row index in the grid
         int actualRowIndex = -1;
         for (int y = 0; y < height; y++) {
-            if (grid[y][0] == row.getData(0)) {
+            if (grid[y][0].equals(row.get(0))) {
                 actualRowIndex = y;
                 break;
             }
@@ -194,10 +180,10 @@ public class MazeManager {
         CircularLinkedList<MazeTile> col = rotatingColumns.get(colIndex);
         col.rotateClockwise();  // Rotate the circular linked list
         
-        // Update the grid with rotated tiles
+        // Find the actual column index in the grid
         int actualColIndex = -1;
         for (int x = 0; x < width; x++) {
-            if (grid[0][x] == col.get(0)) {
+            if (grid[0][x].equals(col.get(0))) {
                 actualColIndex = x;
                 break;
             }
@@ -215,21 +201,21 @@ public class MazeManager {
      * @return Description of the rotation
      */
     public String rotateRandomCorridor() {
-        boolean rotateRow = random.nextBoolean();
+        boolean rotateRowOrColumn = random.nextBoolean(); //true for row, false for column
         int index;
         String result;
         
-        if (rotateRow && !rotatingRows.isEmpty()) {
+        if (rotateRowOrColumn ) {//&& !rotatingRows.isEmpty()
             index = random.nextInt(rotatingRows.size());
             rotateRow(index);
             result = "Rotated row " + index;
-        } else if (!rotatingColumns.isEmpty()) {
+        } else  {//!rotatingColumns.isEmpty()
             index = random.nextInt(rotatingColumns.size());
             rotateColumn(index);
-            result = "Rotated column " + index;
-        } else {
-            result = "No corridors to rotate";
-        }
+            result = "Rotated column " + index;}
+        // } else {
+        //     result = "No corridors to rotate";
+        // }
         
         return result;
     }

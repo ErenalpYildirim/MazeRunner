@@ -32,15 +32,14 @@ public class GameController {
      * @param wallDensity Probability of a tile being a wall
      * @param trapDensity Probability of a tile being a trap
      * @param powerUpDensity Probability of a tile being a power-up
-     * @param numRotatingRows Number of rows that can rotate
-     * @param numRotatingCols Number of columns that can rotate
+     *
      */
     public void initializeGame(int mazeWidth, int mazeHeight, int numAgents, 
-                               double wallDensity, double trapDensity, double powerUpDensity,
-                               int numRotatingRows, int numRotatingCols) {
+                               double wallDensity, double trapDensity, double powerUpDensity
+                               ) {
         // Initialize the maze
         maze = new MazeManager(mazeWidth, mazeHeight);
-        maze.generateMaze(wallDensity, trapDensity, powerUpDensity, numRotatingRows, numRotatingCols);
+        maze.generateMaze(wallDensity, trapDensity, powerUpDensity);
         
         // Initialize the turn manager
         turns = new TurnManager();
@@ -80,11 +79,10 @@ public class GameController {
             // Log the turn
             turns.logTurnSummary(currentAgent, action, maze.printMazeSnapshot());
             
-            // Every 5 turns, rotate a corridor
-            if (turnCount % 5 == 0) {
-                String rotationResult = maze.rotateRandomCorridor();
-                System.out.println("Turn " + turnCount + ": " + rotationResult);
-            }
+            // Every  turn, rotate a corridor
+            String rotationResult = maze.rotateRandomCorridor();
+            System.out.println("Turn " + turnCount + ": " + rotationResult);
+           
         }
         
         System.out.println("Simulation completed after " + turnCount + " turns.");

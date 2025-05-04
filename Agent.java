@@ -14,7 +14,7 @@ public class Agent {
         this.id = id;
         this.currentX = startX;
         this.currentY = startY;
-        this.moveHistory = new Stack<String>();
+        this.moveHistory = new Stack<>();
         this.hasReachedGoal = false;
         this.totalMoves = 0;
         this.backtracks = 0;
@@ -97,7 +97,7 @@ public class Agent {
     }
     
     public String getMoveHistoryAsString() {
-        return moveHistory.toString(); // Show all moves
+        return moveHistory.toString(); // Show last 5 moves
     }
     
    
