@@ -3,9 +3,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
 
-/**
- * Orchestrates the entire maze simulation
- */
+//for controlling the game
 public class GameController {
     private MazeManager maze;
     private TurnManager turns;
@@ -14,37 +12,26 @@ public class GameController {
     private Random random;
     private static final String[] DIRECTIONS = {"UP", "DOWN", "LEFT", "RIGHT"};
     
-    /**
-     * Constructor for GameController
-     * @param maxTurns Maximum number of turns for the simulation
-     */
+    //for initializing game
     public GameController(int maxTurns) {
         this.maxTurns = maxTurns;
         this.turnCount = 0;
         this.random = new Random();
     }
     
-    /**
-     * Initializes the game with the specified parameters
-     * @param mazeWidth Width of the maze
-     * @param mazeHeight Height of the maze
-     * @param numAgents Number of agents in the simulation
-     * @param wallDensity Probability of a tile being a wall
-     * @param trapDensity Probability of a tile being a trap
-     * @param powerUpDensity Probability of a tile being a power-up
-     *
-     */
+    
+    //parameters
     public void initializeGame(int mazeWidth, int mazeHeight, int numAgents, 
                                double wallDensity, double trapDensity, double powerUpDensity
                                ) {
-        // Initialize the maze
+        // initialize the maze
         maze = new MazeManager(mazeWidth, mazeHeight);
         maze.generateMaze(wallDensity, trapDensity, powerUpDensity);
         
-        // Initialize the turn manager
+        // initialize the turn manager
         turns = new TurnManager();
         
-        // Create and add agents
+        // initalizing agents
         for (int i = 0; i < numAgents; i++) {
             Agent agent = new Agent(i, 0, 0); // All agents start at the top-left corner
             maze.addAgent(agent);
@@ -57,14 +44,12 @@ public class GameController {
         System.out.println(maze.printMazeSnapshot());
     }
     
-    /**
-     * Runs the entire simulation until completion or max turns
-     */
+    // running simulation
     public void runSimulation() {
         System.out.println("Starting simulation...");
         
         while (!turns.allAgentsFinished() && turnCount < maxTurns) {
-            // Get the next agent
+            // next agents turn
             Agent currentAgent = turns.advanceTurn();
             
             if (currentAgent == null || currentAgent.hasReachedGoal()) {
@@ -73,16 +58,17 @@ public class GameController {
             
             turnCount++;
             
-            // Process the agent's action
+            // process agent action
             String action = processAgentAction(currentAgent);
             
-            // Log the turn
+            // Log the action
             turns.logTurnSummary(currentAgent, action, maze.printMazeSnapshot());
             
-            // Every  turn, rotate a corridor
+            // Every turn, rotate a corridor
             String rotationResult = maze.rotateRandomCorridor();
             System.out.println("Turn " + turnCount + ": " + rotationResult);
-           
+            System.out.println("Look for '*' to see which corridor was rotated:");
+            System.out.println(maze.printMazeSnapshot());
         }
         
         System.out.println("Simulation completed after " + turnCount + " turns.");
@@ -214,7 +200,7 @@ public class GameController {
         System.out.printf("Average traps triggered per agent: %.2f\n", totalTraps / numAgents);
         
         // Print maze final state
-        System.out.println("\nFinal maze state:");
+        System.out.println("\nFinal maze state (rotating corridors marked with '*'):");
         System.out.println(maze.printMazeSnapshot());
     }
     
@@ -231,6 +217,10 @@ public class GameController {
             writer.println("\n===== TURN LOGS =====");
             for (String log : turns.getTurnLogs()) {
                 writer.println(log);
+                // Add a note about rotating corridors
+                if (log.contains("Rotated")) {
+                    writer.println("(Rotating corridors are marked with '*' on the borders)");
+                }
             }
             
             // Write finished agents
@@ -249,16 +239,17 @@ public class GameController {
             
             for (Agent agent : maze.getAgents()) {
                 writer.printf("| %5d | %5d | %10d | %5d | %12s |\n",
-                            agent.getId(),
-                            agent.getTotalMoves(),
-                            agent.getBacktracks(),
-                            agent.getTrapsTriggered(),
-                            agent.hasReachedGoal() ? "Yes" : "No");
+                              agent.getId(),
+                              agent.getTotalMoves(),
+                              agent.getBacktracks(),
+                              agent.getTrapsTriggered(),
+                              agent.hasReachedGoal() ? "Yes" : "No");
             }
             writer.println("----------------------------------");
             
             // Write final maze state
             writer.println("\n===== FINAL MAZE STATE =====");
+            writer.println("(Rotating corridors are marked with '*' on the borders)");
             writer.println(maze.printMazeSnapshot());
             
             System.out.println("Game summary logged to " + filename);

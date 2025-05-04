@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class CircularLinkedList<T> {
     private Node<T> head;
     private int size;
@@ -38,6 +41,19 @@ public class CircularLinkedList<T> {
         return current.value;
     }
     
+    public List<T> getAllElements() {
+        List<T> elements = new ArrayList<>();
+        if (head == null) {
+            return elements;
+        }
+        Node<T> current = head;
+        for (int i = 0; i < size; i++) {
+            elements.add(current.value);
+            current = current.next;
+        }
+        return elements;
+    }
+    
     private class Node<T> {
         T value;
         Node<T> next;
@@ -54,10 +70,10 @@ public class CircularLinkedList<T> {
             return;
         }
         Node<T> current = head;
-        do {
+        for (int i = 0; i < size; i++) {
             System.out.print(current.value + " ");
             current = current.next;
-        } while (current != head);
+        }
         System.out.println();
     }
 }
