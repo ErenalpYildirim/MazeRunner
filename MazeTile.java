@@ -8,12 +8,7 @@ public class MazeTile {
     private char type;
     private boolean hasAgent;
     
-    /**
-     * Constructor for MazeTile
-     * @param x X-coordinate
-     * @param y Y-coordinate
-     * @param type Tile type ('E', 'W', 'T', 'P', 'G')
-     */
+    // maze tile constructor
     public MazeTile(int x, int y, char type) {
         this.x = x;
         this.y = y;
@@ -21,46 +16,32 @@ public class MazeTile {
         this.hasAgent = false;
     }
     
-    /**
-     * Checks if this tile can be traversed by an agent
-     * @return true if the tile is traversable, false otherwise
-     */
+    // check if traversable
     public boolean isTraversable() {
         return type != 'W'; // Only walls are not traversable
     }
     
-    /**
-     * @return X-coordinate of the tile
-     */
+    //get x cordinate of tile
     public int getX() {
         return x;
     }
     
-    /**
-     * @return Y-coordinate of the tile
-     */
+    //get y cordinate of tile
     public int getY() {
         return y;
     }
     
-    /**
-     * @return Type of the tile
-     */
+    //get type of tile
     public char getType() {
         return type;
     }
     
-    /**
-     * @return true if an agent is on this tile, false otherwise
-     */
+    // check if tile has agent
     public boolean hasAgent() {
         return hasAgent;
     }
     
-    /**
-     * Sets the agent presence on this tile
-     * @param hasAgent true if an agent is on this tile, false otherwise
-     */
+    // set agent presence 
     public void setHasAgent(boolean hasAgent) {
         this.hasAgent = hasAgent;
     }

@@ -1,4 +1,3 @@
-
 public class Agent {
     private int id;
     private int currentX;
@@ -9,6 +8,7 @@ public class Agent {
     private int backtracks;
     private boolean hasPowerUp;
     private int trapsTriggered;
+    private int powerUpsUsed;
     
     public Agent(int id, int startX, int startY) {
         this.id = id;
@@ -20,6 +20,7 @@ public class Agent {
         this.backtracks = 0;
         this.hasPowerUp = false;
         this.trapsTriggered = 0;
+        this.powerUpsUsed = 0;
         
         recordMove(startX, startY);
     }
@@ -85,8 +86,8 @@ public class Agent {
     
     public boolean applyPowerUp() {
         if (hasPowerUp) {
-            
             hasPowerUp = false;
+            powerUpsUsed++;
             return true;
         }
         return false;
@@ -157,6 +158,11 @@ public class Agent {
     
     public int getMaxStackDepth() {
         return moveHistory.size();
+    }
+    
+    
+    public int getPowerUpsUsed() {
+        return powerUpsUsed;
     }
     
     

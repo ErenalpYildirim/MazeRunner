@@ -88,10 +88,11 @@ public class TurnManager {
      * @param agent Agent that just completed their turn
      * @param action Description of the action taken
      * @param mazeState Current state of the maze
+     * @param turnCount Current turn number
      */
-    public void logTurnSummary(Agent agent, String action, String mazeState) {
+    public void logTurnSummary(Agent agent, String action, String mazeState, int turnCount) {
         StringBuilder log = new StringBuilder();
-        log.append("======= Turn ").append(currentRound).append(" =======\n");
+        log.append("======= Turn ").append(turnCount).append(" =======\n");
         log.append("Agent ").append(agent.getId()).append(" ");
         log.append(action).append("\n");
         log.append("Position: (").append(agent.getCurrentX()).append(",").append(agent.getCurrentY()).append(")\n");

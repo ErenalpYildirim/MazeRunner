@@ -2,9 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-/**
- * Manages the maze structure and game board
- */
+// manage maze structure
 public class MazeManager {
     private MazeTile[][] grid;
     private int width;
@@ -13,14 +11,10 @@ public class MazeManager {
     private List<CircularLinkedList<MazeTile>> rotatingRows;
     private List<CircularLinkedList<MazeTile>> rotatingColumns;
     private Random random;
-    private int rotatingRowIndex;  // Track which row is rotating
-    private int rotatingColumnIndex;  // Track which column is rotating
+    private int rotatingRowIndex;  //  which row is rotating
+    private int rotatingColumnIndex;  // which column is rotating
     
-    /**
-     * Constructor for MazeManager
-     * @param width Width of the maze
-     * @param height Height of the maze
-     */
+    //constructor with given parameters
     public MazeManager(int width, int height) {
         this.width = width;
         this.height = height;
@@ -40,13 +34,7 @@ public class MazeManager {
         }
     }
     
-    /**
-     * Generates a random maze with walls, traps, power-ups, and a goal
-     * @param wallDensity Probability of a tile being a wall (0.0 to 1.0)
-     * @param trapDensity Probability of a tile being a trap (0.0 to 1.0)
-     * @param powerUpDensity Probability of a tile being a power-up (0.0 to 1.0)
-     * 
-     */
+    //generate random maze 
     public void generateMaze(double wallDensity, double trapDensity, double powerUpDensity) {
         // First, create a grid of walls
         for (int y = 0; y < height; y++) {
@@ -117,6 +105,8 @@ public class MazeManager {
         }
     }
     
+
+    // for unrelated bug fixes such as border emptying
     private void ensureBordersFilled() {
         // Fill top border
         for (int x = 0; x < width; x++) {
@@ -138,7 +128,7 @@ public class MazeManager {
             }
         }
         
-        // Ensure start and goal are still accessible
+        // make sure start and goal are still accessible
         if (!isGoalAccessible()) {
             clearPathToGoal();
         }
@@ -181,7 +171,7 @@ public class MazeManager {
             grid[y][x].setType('E');
         }
         
-        // Ensure goal is set
+        // make sure goal is set
         grid[height-1][width-1].setType('G');
     }
     
@@ -244,10 +234,7 @@ public class MazeManager {
         }
     }
     
-    /**
-     * Sets up rotating rows for the maze
-     * @param numRows Number of rows that can rotate
-     */
+    //for rotating corridors as rows
     private void setupRotatingRows() {
         rotatingRows.clear();
         
@@ -262,10 +249,7 @@ public class MazeManager {
         rotatingRows.add(rotatingRow);
     }
     
-    /**
-     * Sets up rotating columns for the maze
-     * @param numCols Number of columns that can rotate
-     */
+    //for rotating corridors as columns
     private void setupRotatingColumns() {
         rotatingColumns.clear();
         
@@ -280,10 +264,7 @@ public class MazeManager {
         rotatingColumns.add(rotatingCol);
     }
     
-    /**
-     * Rotates a specific row circularly
-     * @param rowIndex Index of the row to rotate
-     */
+    //rotate a specific row clockwise
     public void rotateRow(int rowIndex) {
         if (rowIndex < 0 || rowIndex >= rotatingRows.size()) {
             throw new IndexOutOfBoundsException("Invalid row index: " + rowIndex);
@@ -302,10 +283,7 @@ public class MazeManager {
         }
     }
     
-    /**
-     * Rotates a specific column circularly
-     * @param colIndex Index of the column to rotate
-     */
+    //rotate a specific column clockwise
     public void rotateColumn(int colIndex) {
         if (colIndex < 0 || colIndex >= rotatingColumns.size()) {
             throw new IndexOutOfBoundsException("Invalid column index: " + colIndex);
@@ -324,10 +302,7 @@ public class MazeManager {
         }
     }
     
-    /**
-     * Rotates a random corridor (row or column)
-     * @return Description of the rotation
-     */
+    //rotate a random corridor ( row or column)
     public String rotateRandomCorridor() {
         boolean rotateRowOrColumn = random.nextBoolean(); //true for row, false for column
         String result;
@@ -345,13 +320,7 @@ public class MazeManager {
         return result;
     }
     
-    /**
-     * Checks if a move is valid from the given position
-     * @param fromX Starting X-coordinate
-     * @param fromY Starting Y-coordinate
-     * @param direction Direction to move
-     * @return true if the move is valid, false otherwise
-     */
+    //check if move is valid
     public boolean isValidMove(int fromX, int fromY, String direction) {
         int toX = fromX;
         int toY = fromY;
@@ -382,12 +351,7 @@ public class MazeManager {
         return grid[toY][toX].isTraversable();
     }
     
-    /**
-     * Gets the tile at the specified coordinates
-     * @param x X-coordinate
-     * @param y Y-coordinate
-     * @return MazeTile at the given coordinates
-     */
+    //get the tile at given coordinates
     public MazeTile getTile(int x, int y) {
         if (x < 0 || x >= width || y < 0 || y >= height) {
             throw new IndexOutOfBoundsException("Invalid coordinates: (" + x + "," + y + ")");
@@ -395,12 +359,7 @@ public class MazeManager {
         return grid[y][x];
     }
     
-    /**
-     * Updates the agent's location in the maze
-     * @param agent Agent to update
-     * @param oldX Previous X-coordinate
-     * @param oldY Previous Y-coordinate
-     */
+    //update agent location on the grid
     public void updateAgentLocation(Agent agent, int oldX, int oldY) {
         // Remove agent from old position
         if (oldX >= 0 && oldX < width && oldY >= 0 && oldY < height) {
@@ -427,35 +386,23 @@ public class MazeManager {
         }
     }
     
-    /**
-     * Adds an agent to the maze
-     * @param agent Agent to add
-     */
+    //adding agent to the maze
     public void addAgent(Agent agent) {
         agents.add(agent);
         grid[agent.getCurrentY()][agent.getCurrentX()].setHasAgent(true);
     }
     
-    /**
-     * Gets all agents in the maze
-     * @return List of agents
-     */
+    //get agents to maze
     public List<Agent> getAgents() {
         return agents;
     }
     
-    /**
-     * Gets the maze dimensions
-     * @return Array with [width, height]
-     */
+    //get maze dimensions of array
     public int[] getDimensions() {
         return new int[] { width, height };
     }
     
-    /**
-     * Prints a snapshot of the maze
-     * @return String representation of the maze
-     */
+    //prints the maze snapshot
     public String printMazeSnapshot() {
         StringBuilder sb = new StringBuilder();
         

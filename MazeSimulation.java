@@ -1,37 +1,31 @@
     import java.util.Scanner;
-
-    /**
-     * Main class for running the maze simulation
-     */
+    //main class for the game
     public class MazeSimulation {
         
-        /**
-         * Main method to run the maze simulation
-         * @param args Command line arguments
-         */
+        //main method to run the game
         public static void main(String[] args) {
             Scanner scanner = new Scanner(System.in);
             
-            // Welcome message
+            // welcome message
             System.out.println("===== ESCAPE FROM THE MAZE: SIMULATION =====");
             System.out.println("A Turn-Based Simulation Game Using Classical Data Structures");
             System.out.println("=============================================");
             
-            // Get simulation parameters
+            // get parameters
             System.out.println("\nEnter simulation parameters:");
             
-            // Maze dimensions
+            // get width and height
             System.out.print("Maze width (6-20): ");
             int mazeWidth = getIntInput(scanner, 6, 20);
             
             System.out.print("Maze height (6-20): ");
             int mazeHeight = getIntInput(scanner, 6, 20);
             
-            // Number of agents
+            // get number of agents
             System.out.print("Number of agents (1-10): ");
             int numAgents = getIntInput(scanner, 1, 10);
             
-            // Probabilities
+            // get map entity densities
             System.out.print("Wall density (0.0-0.5): ");
             double wallDensity = getDoubleInput(scanner, 0.0, 0.5);
             
@@ -42,39 +36,33 @@
             double powerUpDensity = getDoubleInput(scanner, 0.0, 0.1);
             
             
-            // Max turns
+            // get max turns
             System.out.print("Maximum number of turns (50-500): ");
             int maxTurns = getIntInput(scanner, 50, 500);
             
-            // Output file
+            // get output txt log name
             System.out.print("Output log filename: ");
             String logFilename = scanner.nextLine();
             if (logFilename.isEmpty()) {
                 logFilename = "maze_simulation_log.txt";
             }
             
-            // Initialize and run the simulation
+            // initalize game controller
             GameController controller = new GameController(maxTurns);
             controller.initializeGame(mazeWidth, mazeHeight, numAgents, 
                                     wallDensity, trapDensity, powerUpDensity
                                     );
             
-            // Run the simulation
+            // run the simulation
             controller.runSimulation();
             
-            // Log results to file
+            // results to log file
             controller.logGameSummaryToFile(logFilename);
             
             scanner.close();
         }
         
-        /**
-         * Gets an integer input within the specified range
-         * @param scanner Scanner for input
-         * @param min Minimum allowed value
-         * @param max Maximum allowed value
-         * @return Input integer
-         */
+        // get integer input within a range
         private static int getIntInput(Scanner scanner, int min, int max) {
             int value;
             while (true) {
@@ -91,13 +79,7 @@
             }
         }
         
-        /**
-         * Gets a double input within the specified range
-         * @param scanner Scanner for input
-         * @param min Minimum allowed value
-         * @param max Maximum allowed value
-         * @return Input double
-         */
+        //get double input within a range
         private static double getDoubleInput(Scanner scanner, double min, double max) {
             double value;
             while (true) {

@@ -62,7 +62,7 @@ public class GameController {
             String action = processAgentAction(currentAgent);
             
             // Log the action
-            turns.logTurnSummary(currentAgent, action, maze.printMazeSnapshot());
+            turns.logTurnSummary(currentAgent, action, maze.printMazeSnapshot(), turnCount);
             
             // Every turn, rotate a corridor
             String rotationResult = maze.rotateRandomCorridor();
@@ -236,7 +236,7 @@ public class GameController {
             
             int totalPowerUpsUsed = 0;
             for (Agent agent : maze.getAgents()) {
-                int powerUpsUsed = agent.getTotalMoves() - agent.getBacktracks() - agent.getTrapsTriggered();
+                int powerUpsUsed = agent.getPowerUpsUsed();
                 totalPowerUpsUsed += powerUpsUsed;
                 
                 writer.printf("| %5d | %5d | %10d | %5d | %13d | %12s |\n",
@@ -277,5 +277,9 @@ public class GameController {
         }
         
         return shuffled;
+    }
+
+    public int getTurnCount() {
+        return turnCount;
     }
 }
