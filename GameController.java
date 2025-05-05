@@ -171,9 +171,9 @@ public class GameController {
         
         // Print agent statistics
         System.out.println("\nAgent Performance:");
-        System.out.println("----------------------------------");
+        System.out.println("--------------------------------------------------------------------");
         System.out.println("| Agent | Moves | Backtracks | Traps | Reached Goal |");
-        System.out.println("----------------------------------");
+        System.out.println("--------------------------------------------------------------------");
         
         double totalMoves = 0;
         double totalBacktracks = 0;
@@ -191,7 +191,7 @@ public class GameController {
                               agent.getTrapsTriggered(),
                               agent.hasReachedGoal() ? "Yes" : "No");
         }
-        System.out.println("----------------------------------");
+        System.out.println("--------------------------------------------------------------------");
         
         // Print averages
         int numAgents = maze.getAgents().size();
@@ -204,10 +204,7 @@ public class GameController {
         System.out.println(maze.printMazeSnapshot());
     }
     
-    /**
-     * Logs the game summary to a file
-     * @param filename Name of the log file
-     */
+    //logs the game summary to a file
     public void logGameSummaryToFile(String filename) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
             writer.println("===== MAZE ESCAPE SIMULATION LOG =====");
@@ -234,34 +231,40 @@ public class GameController {
             // Write agent statistics
             writer.println("\n===== AGENT PERFORMANCE =====");
             writer.println("----------------------------------");
-            writer.println("| Agent | Moves | Backtracks | Traps | Reached Goal |");
+            writer.println("| Agent | Moves | Backtracks | Traps | Power-ups Used | Reached Goal |");
             writer.println("----------------------------------");
             
+            int totalPowerUpsUsed = 0;
             for (Agent agent : maze.getAgents()) {
-                writer.printf("| %5d | %5d | %10d | %5d | %12s |\n",
+                int powerUpsUsed = agent.getTotalMoves() - agent.getBacktracks() - agent.getTrapsTriggered();
+                totalPowerUpsUsed += powerUpsUsed;
+                
+                writer.printf("| %5d | %5d | %10d | %5d | %13d | %12s |\n",
                               agent.getId(),
                               agent.getTotalMoves(),
                               agent.getBacktracks(),
                               agent.getTrapsTriggered(),
+                              powerUpsUsed,
                               agent.hasReachedGoal() ? "Yes" : "No");
             }
             writer.println("----------------------------------");
             
+            // Write power-up statistics
+            writer.println("\n===== POWER-UP STATISTICS =====");
+            writer.printf("Total power-ups used: %d\n", totalPowerUpsUsed);
+            writer.printf("Average power-ups per agent: %.2f\n", (double)totalPowerUpsUsed / maze.getAgents().size());
+            writer.printf("Power-up usage rate: %.2f%%\n", 
+                         (double)totalPowerUpsUsed / (double)turnCount * 100);
+            
             // Write final maze state
             writer.println("\n===== FINAL MAZE STATE =====");
-            writer.println("(Rotating corridors are marked with '*' on the borders)");
             writer.println(maze.printMazeSnapshot());
-            
-            System.out.println("Game summary logged to " + filename);
         } catch (IOException e) {
             System.err.println("Error writing to log file: " + e.getMessage());
         }
     }
     
-    /**
-     * Shuffles the directions array for random movement selection
-     * @return Shuffled array of directions
-     */
+    //shuffles the directions array for random movement selection
     private String[] shuffleDirections() {
         String[] shuffled = DIRECTIONS.clone();
         
