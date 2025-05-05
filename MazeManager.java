@@ -13,6 +13,8 @@ public class MazeManager {
     private List<CircularLinkedList<MazeTile>> rotatingRows;
     private List<CircularLinkedList<MazeTile>> rotatingColumns;
     private Random random;
+    private int rotatingRowIndex;  // Track which row is rotating
+    private int rotatingColumnIndex;  // Track which column is rotating
     
     /**
      * Constructor for MazeManager
@@ -27,6 +29,8 @@ public class MazeManager {
         this.rotatingRows = new ArrayList<>();
         this.rotatingColumns = new ArrayList<>();
         this.random = new Random();
+        this.rotatingRowIndex = -1;
+        this.rotatingColumnIndex = -1;
         
         // Initialize the grid with empty tiles
         for (int y = 0; y < height; y++) {
@@ -41,117 +45,239 @@ public class MazeManager {
      * @param wallDensity Probability of a tile being a wall (0.0 to 1.0)
      * @param trapDensity Probability of a tile being a trap (0.0 to 1.0)
      * @param powerUpDensity Probability of a tile being a power-up (0.0 to 1.0)
-     * @param numRotatingRows Number of rows that can rotate
-     * @param numRotatingCols Number of columns that can rotate
+     * 
      */
-    public void generateMaze(double wallDensity, double trapDensity, double powerUpDensity, 
-                             int numRotatingRows, int numRotatingCols) {
-        // Place walls, traps, and power-ups randomly
+    public void generateMaze(double wallDensity, double trapDensity, double powerUpDensity) {
+        // First, create a grid of walls
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                double roll = random.nextDouble();
+                grid[y][x] = new MazeTile(x, y, 'W');
+            }
+        }
+        
+        // Create a path from start to goal using Prim's algorithm
+        boolean[][] visited = new boolean[height][width];
+        Stack walls = new Stack();
+        
+        // Start from the top-left corner
+        int startX = 0;
+        int startY = 0;
+        visited[startY][startX] = true;
+        grid[startY][startX].setType('E');
+        
+        // Add walls of the starting cell
+        addWalls(startX, startY, walls, visited);
+        
+        while (!walls.isEmpty()) {
+            // Pick a random wall
+            int randomIndex = random.nextInt(walls.size());
+            int[] wall = (int[])walls.peek();
+            walls.pop();
+            int x = wall[0];
+            int y = wall[1];
+            
+            // Count visited neighbors
+            int visitedNeighbors = 0;
+            if (x > 0 && visited[y][x-1]) visitedNeighbors++;
+            if (x < width-1 && visited[y][x+1]) visitedNeighbors++;
+            if (y > 0 && visited[y-1][x]) visitedNeighbors++;
+            if (y < height-1 && visited[y+1][x]) visitedNeighbors++;
+            
+            // If this wall separates an unvisited cell from a visited cell
+            if (visitedNeighbors == 1) {
+                grid[y][x].setType('E');
+                visited[y][x] = true;
                 
-                // Skip the corners (starting and potential goal positions)
-                if ((x == 0 && y == 0) || (x == width-1 && y == height-1)) {
-                    continue;
-                }
-                
-                if (roll < wallDensity) {
-                    grid[y][x].setType('W');
-                } else if (roll < wallDensity + trapDensity) {
-                    grid[y][x].setType('T');
-                } else if (roll < wallDensity + trapDensity + powerUpDensity) {
-                    grid[y][x].setType('P');
-                }
+                // Add walls of the new cell
+                addWalls(x, y, walls, visited);
             }
         }
         
         // Place the goal at the bottom-right corner
+        int goalX = width - 1;
+        int goalY = height - 1;
+        grid[goalY][goalX].setType('G');
+        
+        // Create a path to the goal
+        createPathToGoal();
+        
+        // Add random walls to create dead ends
+        addRandomWalls(wallDensity);
+        
+        // Add traps and power-ups
+        addTrapsAndPowerUps(trapDensity, powerUpDensity);
+        
+        // Set up rotating rows and columns
+        setupRotatingRows();
+        setupRotatingColumns();
+        
+        // Verify goal is still accessible
+        if (!isGoalAccessible()) {
+            clearPathToGoal();
+        }
+    }
+    
+    private void ensureBordersFilled() {
+        // Fill top border
+        for (int x = 0; x < width; x++) {
+            if (grid[0][x].getType() == 'E') {
+                // 70% chance to place a wall
+                if (random.nextDouble() < 0.7) {
+                    grid[0][x].setType('W');
+                }
+            }
+        }
+        
+        // Fill right border
+        for (int y = 0; y < height; y++) {
+            if (grid[y][width-1].getType() == 'E') {
+                // 70% chance to place a wall
+                if (random.nextDouble() < 0.7) {
+                    grid[y][width-1].setType('W');
+                }
+            }
+        }
+        
+        // Ensure start and goal are still accessible
+        if (!isGoalAccessible()) {
+            clearPathToGoal();
+        }
+    }
+    
+    private void addWalls(int x, int y, Stack walls, boolean[][] visited) {
+        // Add unvisited neighboring walls
+        if (x > 0 && !visited[y][x-1]) {
+            walls.push(new int[]{x-1, y});
+        }
+        if (x < width-1 && !visited[y][x+1]) {
+            walls.push(new int[]{x+1, y});
+        }
+        if (y > 0 && !visited[y-1][x]) {
+            walls.push(new int[]{x, y-1});
+        }
+        if (y < height-1 && !visited[y+1][x]) {
+            walls.push(new int[]{x, y+1});
+        }
+    }
+    
+    private void createPathToGoal() {
+        // Create a winding path to the goal
+        int x = 0, y = 0;
+        while (x < width - 1 || y < height - 1) {
+            // Randomly choose direction (right or down)
+            if (x < width - 1 && y < height - 1) {
+                if (random.nextBoolean()) {
+                    x++;
+                } else {
+                    y++;
+                }
+            } else if (x < width - 1) {
+                x++;
+            } else {
+                y++;
+            }
+            
+            // Clear the path
+            grid[y][x].setType('E');
+        }
+        
+        // Ensure goal is set
         grid[height-1][width-1].setType('G');
+    }
+    
+    private void addRandomWalls(double wallDensity) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Skip start and goal positions
+                if ((x == 0 && y == 0) || (x == width-1 && y == height-1)) {
+                    continue;
+                }
+                
+                // Only add walls to empty spaces
+                if (grid[y][x].getType() == 'E') {
+                    if (random.nextDouble() < wallDensity) {
+                        grid[y][x].setType('W');
+                    }
+                }
+            }
+        }
+    }
+    
+    private void addTrapsAndPowerUps(double trapDensity, double powerUpDensity) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Skip start and goal positions
+                if ((x == 0 && y == 0) || (x == width-1 && y == height-1)) {
+                    continue;
+                }
+                
+                // Only add traps and power-ups to empty spaces
+                if (grid[y][x].getType() == 'E') {
+                    double roll = random.nextDouble();
+                    if (roll < trapDensity) {
+                        grid[y][x].setType('T');
+                    } else if (roll < trapDensity + powerUpDensity) {
+                        grid[y][x].setType('P');
+                    }
+                }
+            }
+        }
+    }
+    
+    private class Node implements Comparable<Node> {
+        int x, y;
+        double g, h, f;
+        Node parent;
         
-        // Set up rotating rows
-        setupRotatingRows(numRotatingRows);
+        Node(int x, int y, double g, double h, Node parent) {
+            this.x = x;
+            this.y = y;
+            this.g = g;
+            this.h = h;
+            this.f = g + h;
+            this.parent = parent;
+        }
         
-        // Set up rotating columns
-        setupRotatingColumns(numRotatingCols);
-        
-        // Ensure the maze is solvable by creating a path from start to goal
-        ensureSolvable();
+        @Override
+        public int compareTo(Node other) {
+            return Double.compare(this.f, other.f);
+        }
     }
     
     /**
      * Sets up rotating rows for the maze
      * @param numRows Number of rows that can rotate
      */
-    private void setupRotatingRows(int numRows) {
-        numRows = Math.min(numRows, height);
-        
-        // Clear existing rotating rows
+    private void setupRotatingRows() {
         rotatingRows.clear();
         
-        // Select random rows to rotate
-        List<Integer> selectedRows = new ArrayList<>();
-        while (selectedRows.size() < numRows) {
-            int row = random.nextInt(height);
-            if (!selectedRows.contains(row)) {
-                selectedRows.add(row);
-                
-                // Create a circular linked list for this row
-                CircularLinkedList<MazeTile> rotatingRow = new CircularLinkedList<>();
-                for (int x = 0; x < width; x++) {
-                    rotatingRow.add(grid[row][x]);
-                }
-                rotatingRows.add(rotatingRow);
-            }
+        // Select random row to rotate (not the first or last row)
+        rotatingRowIndex = 1 + random.nextInt(height - 2);
+        CircularLinkedList<MazeTile> rotatingRow = new CircularLinkedList<>();
+        
+        // Add all tiles from the selected row to the circular list
+        for (int x = 0; x < width; x++) {
+            rotatingRow.add(grid[rotatingRowIndex][x]);
         }
+        rotatingRows.add(rotatingRow);
     }
     
     /**
      * Sets up rotating columns for the maze
      * @param numCols Number of columns that can rotate
      */
-    private void setupRotatingColumns(int numCols) {
-        numCols = Math.min(numCols, width);
-        
-        // Clear existing rotating columns
+    private void setupRotatingColumns() {
         rotatingColumns.clear();
         
-        // Select random columns to rotate
-        List<Integer> selectedCols = new ArrayList<>();
-        while (selectedCols.size() < numCols) {
-            int col = random.nextInt(width);
-            if (!selectedCols.contains(col)) {
-                selectedCols.add(col);
-                
-                // Create a circular linked list for this column
-                CircularLinkedList<MazeTile> rotatingCol = new CircularLinkedList<>();
-                for (int y = 0; y < height; y++) {
-                    rotatingCol.add(grid[y][col]);
-                }
-                rotatingColumns.add(rotatingCol);
-            }
-        }
-    }
-    
-    /**
-     * Ensures the maze is solvable by creating a path from start to goal
-     */
-    private void ensureSolvable() {
-        // Simple method: clear a path along the edges
+        // Select random column to rotate (not the first or last column)
+        rotatingColumnIndex = 1 + random.nextInt(width - 2);
+        CircularLinkedList<MazeTile> rotatingCol = new CircularLinkedList<>();
         
-        // Clear the top row
-        for (int x = 0; x < width; x++) {
-            if (grid[0][x].getType() == 'W') {
-                grid[0][x].setType('E');
-            }
-        }
-        
-        // Clear the right column
+        // Add all tiles from the selected column to the circular list
         for (int y = 0; y < height; y++) {
-            if (grid[y][width-1].getType() == 'W') {
-                grid[y][width-1].setType('E');
-            }
+            rotatingCol.add(grid[y][rotatingColumnIndex]);
         }
+        rotatingColumns.add(rotatingCol);
     }
     
     /**
@@ -164,21 +290,15 @@ public class MazeManager {
         }
         
         CircularLinkedList<MazeTile> row = rotatingRows.get(rowIndex);
-        row.rotate();  // Rotate the circular linked list
+        row.rotateClockwise();  // Rotate the circular linked list
         
-        // Update the grid with rotated tiles
-        int actualRowIndex = -1;
-        for (int y = 0; y < height; y++) {
-            if (grid[y][0] == row.get(0)) {
-                actualRowIndex = y;
-                break;
-            }
-        }
-        
-        if (actualRowIndex != -1) {
-            for (int x = 0; x < width; x++) {
-                grid[actualRowIndex][x] = row.get(x);
-            }
+        // Update the grid with the rotated row
+        List<MazeTile> rotatedTiles = row.getAllElements();
+        for (int x = 0; x < width; x++) {
+            MazeTile tile = rotatedTiles.get(x);
+            tile.setX(x);
+            tile.setY(rotatingRowIndex);
+            grid[rotatingRowIndex][x] = tile;
         }
     }
     
@@ -192,21 +312,15 @@ public class MazeManager {
         }
         
         CircularLinkedList<MazeTile> col = rotatingColumns.get(colIndex);
-        col.rotate();  // Rotate the circular linked list
+        col.rotateClockwise();  // Rotate the circular linked list
         
-        // Update the grid with rotated tiles
-        int actualColIndex = -1;
-        for (int x = 0; x < width; x++) {
-            if (grid[0][x] == col.get(0)) {
-                actualColIndex = x;
-                break;
-            }
-        }
-        
-        if (actualColIndex != -1) {
-            for (int y = 0; y < height; y++) {
-                grid[y][actualColIndex] = col.get(y);
-            }
+        // Update the grid with the rotated column
+        List<MazeTile> rotatedTiles = col.getAllElements();
+        for (int y = 0; y < height; y++) {
+            MazeTile tile = rotatedTiles.get(y);
+            tile.setX(rotatingColumnIndex);
+            tile.setY(y);
+            grid[y][rotatingColumnIndex] = tile;
         }
     }
     
@@ -215,20 +329,17 @@ public class MazeManager {
      * @return Description of the rotation
      */
     public String rotateRandomCorridor() {
-        boolean rotateRow = random.nextBoolean();
-        int index;
+        boolean rotateRowOrColumn = random.nextBoolean(); //true for row, false for column
         String result;
         
-        if (rotateRow && !rotatingRows.isEmpty()) {
-            index = random.nextInt(rotatingRows.size());
-            rotateRow(index);
-            result = "Rotated row " + index;
-        } else if (!rotatingColumns.isEmpty()) {
-            index = random.nextInt(rotatingColumns.size());
-            rotateColumn(index);
-            result = "Rotated column " + index;
+        if (rotateRowOrColumn) {
+            int rowIndex = 0; // We only have one rotating row
+            rotateRow(rowIndex);
+            result = "Rotated row " + rowIndex;
         } else {
-            result = "No corridors to rotate";
+            int colIndex = 0; // We only have one rotating column
+            rotateColumn(colIndex);
+            result = "Rotated column " + colIndex;
         }
         
         return result;
@@ -348,16 +459,26 @@ public class MazeManager {
     public String printMazeSnapshot() {
         StringBuilder sb = new StringBuilder();
         
-        // Add top border
+        // Add top border with column markers for rotating column
         sb.append("+");
         for (int x = 0; x < width; x++) {
-            sb.append("--");
+            if (x == rotatingColumnIndex) {
+                sb.append("**");
+            } else {
+                sb.append("--");
+            }
         }
         sb.append("+\n");
         
         // Add maze content
         for (int y = 0; y < height; y++) {
-            sb.append("|");
+            // Add row marker for rotating row
+            if (y == rotatingRowIndex) {
+                sb.append("*");
+            } else {
+                sb.append("|");
+            }
+            
             for (int x = 0; x < width; x++) {
                 MazeTile tile = grid[y][x];
                 
@@ -393,16 +514,77 @@ public class MazeManager {
                     }
                 }
             }
-            sb.append("|\n");
+            
+            // Add right border with row marker for rotating row
+            if (y == rotatingRowIndex) {
+                sb.append("*\n");
+            } else {
+                sb.append("|\n");
+            }
         }
         
-        // Add bottom border
+        // Add bottom border with column markers for rotating column
         sb.append("+");
         for (int x = 0; x < width; x++) {
-            sb.append("--");
+            if (x == rotatingColumnIndex) {
+                sb.append("**");
+            } else {
+                sb.append("--");
+            }
         }
         sb.append("+");
         
         return sb.toString();
+    }
+    
+    private boolean isGoalAccessible() {
+        // Use BFS to check if goal is accessible from start
+        boolean[][] visited = new boolean[height][width];
+        Queue queue = new Queue();
+        queue.enqueue(new int[]{0, 0});
+        visited[0][0] = true;
+        
+        int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        
+        while (!queue.isEmpty()) {
+            int[] current = (int[])queue.dequeue();
+            int x = current[0];
+            int y = current[1];
+            
+            if (x == width - 1 && y == height - 1) {
+                return true;
+            }
+            
+            for (int[] dir : directions) {
+                int newX = x + dir[0];
+                int newY = y + dir[1];
+                
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height 
+                    && !visited[newY][newX] 
+                    && grid[newY][newX].isTraversable()) {
+                    visited[newY][newX] = true;
+                    queue.enqueue(new int[]{newX, newY});
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private void clearPathToGoal() {
+        // Clear a direct path from start to goal
+        int x = 0, y = 0;
+        while (x < width - 1 || y < height - 1) {
+            if (x < width - 1) {
+                x++;
+                grid[y][x].setType('E');
+            }
+            if (y < height - 1) {
+                y++;
+                grid[y][x].setType('E');
+            }
+        }
+        // Ensure goal is set
+        grid[height-1][width-1].setType('G');
     }
 }

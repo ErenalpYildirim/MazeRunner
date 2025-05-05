@@ -74,6 +74,22 @@ public class MazeTile {
     }
     
     /**
+     * Sets the X-coordinate of this tile
+     * @param x New X-coordinate
+     */
+    public void setX(int x) {
+        this.x = x;
+    }
+    
+    /**
+     * Sets the Y-coordinate of this tile
+     * @param y New Y-coordinate
+     */
+    public void setY(int y) {
+        this.y = y;
+    }
+    
+    /**
      * String representation of the tile
      * @return String showing tile type and agent presence
      */
@@ -84,5 +100,13 @@ public class MazeTile {
         } else {
             return String.valueOf(type);
         }
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        MazeTile other = (MazeTile) obj;
+        return x == other.x && y == other.y && type == other.type;
     }
 }

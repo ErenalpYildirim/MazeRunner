@@ -97,7 +97,7 @@ public class Agent {
     }
     
     public String getMoveHistoryAsString() {
-        return moveHistory.toString(5); // Show last 5 moves
+        return moveHistory.toString(); // Show last 5 moves
     }
     
    
