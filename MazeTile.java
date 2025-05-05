@@ -1,7 +1,4 @@
-/**
- * Represents a cell in the maze.
- * Possible types: 'E': Empty, 'W': Wall, 'T': Trap, 'P': Power-up, 'G': Goal
- */
+//represents cells in the maze
 public class MazeTile {
     private int x;
     private int y;
@@ -46,34 +43,22 @@ public class MazeTile {
         this.hasAgent = hasAgent;
     }
     
-    /**
-     * Sets the type of this tile
-     * @param type New tile type
-     */
+    //sets the type of tile
     public void setType(char type) {
         this.type = type;
     }
     
-    /**
-     * Sets the X-coordinate of this tile
-     * @param x New X-coordinate
-     */
+    // set x cordinate of tile
     public void setX(int x) {
         this.x = x;
     }
     
-    /**
-     * Sets the Y-coordinate of this tile
-     * @param y New Y-coordinate
-     */
+    // set y cordinate of tile
     public void setY(int y) {
         this.y = y;
     }
     
-    /**
-     * String representation of the tile
-     * @return String showing tile type and agent presence
-     */
+    // tile to string
     @Override
     public String toString() {
         if (hasAgent) {

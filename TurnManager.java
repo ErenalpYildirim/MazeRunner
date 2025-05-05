@@ -1,18 +1,14 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Controls the order in which agents take their turns
- */
+// control turn order
 public class TurnManager {
     private Queue<Agent> agentQueue;
     private int currentRound;
     private List<Agent> finishedAgents;
     private List<String> turnLogs;
     
-    /**
-     * Constructor for TurnManager
-     */
+    //constructor
     public TurnManager() {
         this.agentQueue = new Queue<>();
         this.currentRound = 0;
@@ -20,26 +16,17 @@ public class TurnManager {
         this.turnLogs = new ArrayList<>();
     }
     
-    /**
-     * Adds an agent to the turn queue
-     * @param agent Agent to add
-     */
+    // add agent to the queue
     public void addAgent(Agent agent) {
         agentQueue.enqueue(agent);
     }
     
-    /**
-     * Gets the current round number
-     * @return Current round
-     */
+    // get current round
     public int getCurrentRound() {
         return currentRound;
     }
     
-    /**
-     * Advances to the next turn by rotating the queue
-     * @return The agent whose turn it is now
-     */
+    // advance turn
     public Agent advanceTurn() {
         if (agentQueue.isEmpty()) {
             return null;
@@ -64,10 +51,7 @@ public class TurnManager {
         return currentAgent;
     }
     
-    /**
-     * Gets the current agent without advancing the turn
-     * @return Current agent
-     */
+    // get current agent
     public Agent getCurrentAgent() {
         if (agentQueue.isEmpty()) {
             return null;
@@ -75,21 +59,12 @@ public class TurnManager {
         return agentQueue.peek();
     }
     
-    /**
-     * Checks if all agents have reached the goal
-     * @return true if all agents have finished, false otherwise
-     */
+    // check if all agents finished
     public boolean allAgentsFinished() {
         return agentQueue.isEmpty();
     }
     
-    /**
-     * Logs a summary of the current turn
-     * @param agent Agent that just completed their turn
-     * @param action Description of the action taken
-     * @param mazeState Current state of the maze
-     * @param turnCount Current turn number
-     */
+    // log turn summary each turn
     public void logTurnSummary(Agent agent, String action, String mazeState, int turnCount) {
         StringBuilder log = new StringBuilder();
         log.append("======= Turn ").append(turnCount).append(" =======\n");
@@ -103,26 +78,17 @@ public class TurnManager {
         turnLogs.add(log.toString());
     }
     
-    /**
-     * Gets the list of agents who have reached the goal
-     * @return List of finished agents
-     */
+    // get the list of finished agents
     public List<Agent> getFinishedAgents() {
         return finishedAgents;
     }
     
-    /**
-     * Gets the logs of all turns
-     * @return List of turn logs
-     */
+    // get the list of turn logs
     public List<String> getTurnLogs() {
         return turnLogs;
     }
     
-    /**
-     * Gets the current turn order as a string
-     * @return String representation of the turn queue
-     */
+    // get turn order as string
     public String getTurnOrderAsString() {
         return "Turn Order: " + agentQueue.toString();
     }
