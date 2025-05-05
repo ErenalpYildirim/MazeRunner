@@ -67,12 +67,12 @@ public class Queue<Q> {
     
     
     public Q peek() {
-    if (isEmpty()) {
-    System.out.println("Queue is empty");
-    return null;
-    }
-    return front.getValue();
-    }
+      if (isEmpty()) {
+      System.out.println("Queue is empty");
+      return null;
+      }
+      return front.getValue();
+      }
     
     public boolean isEmpty() {
     return front == null;
